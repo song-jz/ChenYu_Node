@@ -1,0 +1,11 @@
+{
+    "name": "Chenyu Encryption Node",
+    "version": "1.0.0",
+    "author": "Emiya",
+    "description": "A sample custom node for ComfyUI",
+    "repository": "https://github.com/song-jz/ChenYu_Node",
+    "install_requirements": [], 
+    "nodes": [
+      ["chenyu_node.py", "ChenyuEncryptionNode"]
+    ]
+  }
