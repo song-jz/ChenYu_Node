@@ -9,6 +9,7 @@ from comfy_execution.graph import ExecutionBlocker
 from comfy_execution.graph_utils import GraphBuilder
 from server import PromptServer
 from .local_crypto import LocalCryptoWorkflow
+from .utils import get_crypto_workflow_dir
 
 
 class AnyType(str):
@@ -43,6 +44,14 @@ def ensure_directory_exists(path):
             print(f"创建目录失败: {path}, 错误: {str(e)}")
             return False
     return True
+
+
+def get_crypto_workflow_dir():
+    """获取加密工作流目录"""
+    base_dir = os.path.dirname(folder_paths.output_directory)
+    crypto_dir = os.path.join(base_dir, "crypto-workflow")
+    ensure_directory_exists(crypto_dir)
+    return crypto_dir
 
 
 class ChenYuSaveLocalCryptoNode:
@@ -143,7 +152,7 @@ class ChenYuSaveLocalCryptoNode:
             raise Exception("Warning: 密码不能为空.")
         
         # 确保输出目录存在
-        output_dir = folder_paths.output_directory
+        output_dir = get_crypto_workflow_dir()
         temp_dir = folder_paths.temp_directory
         
         if not ensure_directory_exists(output_dir):
@@ -154,7 +163,7 @@ class ChenYuSaveLocalCryptoNode:
         # 调试信息
         print(f"===== 开始加密工作流 =====")
         print(f"Template ID: {template_id}")
-        print(f"ComfyUI输出目录: {output_dir}")
+        print(f"加密工作流目录: {output_dir}")
         print(f"ComfyUI临时目录: {temp_dir}")
         
         # 初始化加密工作流处理器
@@ -333,7 +342,7 @@ class ChenYuLocalDecodeCryptoNode:
         salted_password = f"{password}_{salt}"  # 简单的加盐方式
 
         # 确保输出目录存在
-        output_dir = folder_paths.output_directory
+        output_dir = get_crypto_workflow_dir()
         temp_dir = folder_paths.temp_directory
         
         if not ensure_directory_exists(output_dir):
@@ -343,7 +352,7 @@ class ChenYuLocalDecodeCryptoNode:
             
         print(f"===== 开始解密工作流 =====")
         print(f"Template ID: {template_id}")
-        print(f"ComfyUI输出目录: {output_dir}")
+        print(f"加密工作流目录: {output_dir}")
         print(f"ComfyUI临时目录: {temp_dir}")
         
         try:

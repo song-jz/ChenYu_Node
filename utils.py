@@ -12,6 +12,20 @@ import subprocess
 import random
 import string
 import socket
+import folder_paths
+
+
+def ensure_directory_exists(path):
+    """确保目录存在，如果不存在则创建"""
+    if not os.path.exists(path):
+        try:
+            os.makedirs(path, exist_ok=True)
+            print(f"创建目录: {path}")
+            return True
+        except Exception as e:
+            print(f"创建目录失败: {path}, 错误: {str(e)}")
+            return False
+    return True
 
 
 def pil2tensor(images: Image.Image | list[Image.Image]) -> torch.Tensor:
@@ -141,3 +155,11 @@ def generate_random_string(length: int) -> str:
     "\n    Generate a random string of specified length using uppercase and lowercase letters.\n    \n    Args:\n        length (int): The desired length of the random string\n        \n    Returns:\n        str: A random string of the specified length\n"
     letters = string.ascii_letters
     return "".join(random.choice(letters) for _ in range(length))
+
+
+def get_crypto_workflow_dir():
+    """获取加密工作流目录"""
+    base_dir = os.path.dirname(folder_paths.output_directory)
+    crypto_dir = os.path.join(base_dir, "crypto-workflow")
+    ensure_directory_exists(crypto_dir)
+    return crypto_dir

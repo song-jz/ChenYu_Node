@@ -8,6 +8,7 @@ import folder_paths
 from collections import defaultdict
 import copy
 from .file_compressor import FileCompressor
+from .utils import get_crypto_workflow_dir
 
 
 class LocalCryptoWorkflow:
@@ -198,7 +199,13 @@ class LocalCryptoWorkflow:
             raise ValueError("ChenYuSaveLocalCryptoNode not found in workflow")
         if crypto_bridge_node is None:
             raise ValueError("ChenYuLocalCryptoBridgeNode not found in workflow")
+            
+        # 修改保存节点类型
         save_crypto_node["type"] = "ChenYuLocalDecodeCryptoNode"
+        save_crypto_node["class_type"] = "ChenYuLocalDecodeCryptoNode"
+        save_crypto_node["properties"] = {"Node name for S&R": "ChenYuLocalDecodeCryptoNode"}
+        
+        # 设置节点小部件值
         save_crypto_node["widgets_values"] = (
             [save_crypto_node.get("widgets_values", [None])[0]]
             if "widgets_values" in save_crypto_node
@@ -206,11 +213,14 @@ class LocalCryptoWorkflow:
         )
         save_crypto_node["widgets_values"].append("")
         save_crypto_node["widgets_values"].append(False)
-        save_crypto_node["properties"] = {"Node name for S&R": "ChenYuLocalDecodeCryptoNode"}
+        
+        # 处理节点输出
         if "outputs" not in crypto_bridge_node:
             save_crypto_node["outputs"] = []
         else:
             save_crypto_node["outputs"] = copy.deepcopy(crypto_bridge_node["outputs"])
+        
+        # 修改链接
         output_nodes_ids = [int(node["id"]) for node in simplify_workflow["nodes"]]
         filtered_links = []
         for link in simplify_workflow["links"]:
@@ -220,11 +230,12 @@ class LocalCryptoWorkflow:
                 link[1] = self.save_crypto_node_id
             if link[1] in output_nodes_ids and link[3] in output_nodes_ids:
                 filtered_links.append(link)
-            else:
-                pass
+                
         simplify_workflow["links"] = filtered_links
         simplify_workflow.pop("groups", None)
-        save_dir = folder_paths.output_directory
+        
+        # 保存工作流
+        save_dir = get_crypto_workflow_dir()
         os.makedirs(save_dir, exist_ok=True)
         output_path = os.path.join(save_dir, output_workflow_name)
         with open(output_path, "w", encoding="utf-8") as f:
